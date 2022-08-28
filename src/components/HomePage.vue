@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="payment-info">
-                        <p>payment id: {{paymentId}}</p>
+                        <p>{{paymentId}}</p>
                     </div>
                 </div>
             </div>
