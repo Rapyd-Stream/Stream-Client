@@ -1,21 +1,28 @@
 <template>
-    <div class="container">
-        <div class="row" style="padding-top: 60px;">
-            <div class="col-md-4 align-t-left">
-                <h4>What is Stream</h4>
+    <div class="container animate__animated animate__bounceInDown">
+        <div class="row" style="padding-top: 50px;">
+            <div class="col-md-12 align-t-left info-con mobile">
+                <h4 class="first">What is Stream</h4>
                 <div class="stream-info">
                     <p>Stream is a transfer method to <strong>stream money over time</strong> to a receiver. The funds are in a linear time based escrow (built on top of Rapyd Escrow). This is a perfect solution for contractors as they do not have to wait for their paycheck.</p>
                     <p>Streams can be cancelled at any time from the sender.</p>
                 </div>
             </div>
-            <div class="col-md-4 align-t-left">
+            <div class="col-md-4 align-t-left info-con">
+                <h4 class="first">What is Stream</h4>
+                <div class="stream-info">
+                    <p>Stream is a transfer method to <strong>stream money over time</strong> to a receiver. The funds are in a linear time based escrow (built on top of Rapyd Escrow). This is a perfect solution for contractors as they do not have to wait for their paycheck.</p>
+                    <p>Streams can be cancelled at any time from the sender.</p>
+                </div>
+            </div>
+            <div class="col-md-4 align-t-left explainer">
                 <h4>Stream Creation UX</h4>
-                <div class="form-widget load" v-if="this.paymentStatus === 'finish'">
+                <div class="form-widget load animate__animated animate__flipInY" v-if="this.paymentStatus === 'finish'">
                     <p><i class="fa fa-check"></i> <strong>Payment stream has been setup</strong></p>
                     <p style="margin-top: 30px;"><strong>Escrow Identifier:</strong> {{escrowId}}</p>
                     <p><strong>Payment Identifier: </strong>{{paymentId}}</p>
                 </div>
-                <div class="form-widget load" v-if="this.paymentStatus === 'loading'">
+                <div class="form-widget load animate__animated animate__flipInY" v-if="this.paymentStatus === 'loading'">
                     <div class="center-load">
                         <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
                     </div>
@@ -27,16 +34,18 @@
                             <label class="firstlabel" for="amountstream">Amount To Stream (USD)</label>
                             <input v-model="amount" type="number" class="form-control" id="amountstream" placeholder="2000">
                             <small class="warn" v-if="amount < 1">Amount must be greater than 1</small>
+                            <small class="warn" v-if="amount > 999">Amount must be smaller than 1000</small>
+                            <p style="margin: 0; color: grey;"><small>maximum amount is 1000</small></p>
                         </div>
                         <div class="form-group">
-                            <label for="durationstream">Number of days</label>
+                            <label for="durationstream" style="margin-top: 8px;">Number of days</label>
                             <input v-model="numberOfDays" min="1" type="text" class="form-control" id="durationstream" placeholder="14">
                             <small class="warn" v-if="numberOfDays < 1">Number of days must be greater than 0</small>
                         </div>
                         <div class="form-group">
                             <label for="recipientstream">Recipient</label>
                             <input type="text" disabled value="Tim Apple's Wallet" class="form-control" 
-                            style="border: none; background-color: #f2f2f2;" id="recipientstream" placeholder="">
+                            style="border: none; color: #555; background-color: #e8e8e8;" id="recipientstream" placeholder="">
                         </div>
                         <div class="form-group">
                             <label for="recipientstream">Payment Method</label>
@@ -52,7 +61,7 @@
                         </form>
                 </div>
             </div>
-            <div class="col-md-4 align-t-left" v-if="streamActive">
+            <div class="col-md-4 col-md-4 align-t-left" v-if="streamActive">
                 <h4>Stream Receiver UX</h4>
                  <div class="stream-widget">
                     <div class="info">
@@ -117,7 +126,7 @@ export default {
     return {
         counter: 0,
         streamActive: false,
-        amount: 2500,
+        amount: 800,
         numberOfDays: 30,
         paymentStatus: "start",
         paymentId: "",
@@ -140,7 +149,7 @@ export default {
         this.paymentStatus = "loading" 
         try {
             let resp = await axios.post(
-            "http://localhost:3000/stream/create/",
+            "https://rapyd-stream-backend.herokuapp.com/stream/create/",
             {
                 amount: this.amount, 
                 numberDays: this.numberOfDays
@@ -165,23 +174,20 @@ export default {
     startCount(current_val, final_val, days) {
 
     // amount still to stream
-    let diff = final_val - current_val;
-    let startDate = Date.now()
-    let currentDate = Date.now()
-    let endDate = startDate + (86400000 * days)
-    
-    console.log("diff", diff)
-    let timeLeft = endDate - currentDate;
-    console.log("timeLeft", timeLeft)
+    let diff = final_val - current_val;    
+    let timeLeft = (86400000 * days);
+
     // convert milisecons to seconds
 
-    let timeLeftSeconds = timeLeft / 1000;
-    let val_per_second_transferred = 1000 / timeLeftSeconds;
+    let resolution = 10;
+    let timeLeftPerResolution = timeLeft / resolution;
+
+    let val_per_resolution_ms_transferred = diff / timeLeftPerResolution;
 
     this.counter = current_val;
     const countUp = () => {
-        this.counter += val_per_second_transferred
-        setTimeout(countUp,10)
+        this.counter += val_per_resolution_ms_transferred
+        setTimeout(countUp, 9.9)
     }
     countUp()
 
@@ -197,19 +203,34 @@ export default {
 }
 </script>
 <style lang="scss">
+
+.info-con {
+    @media(max-width: 1200px) {
+        display: none!important;
+    }
+}
+
+.mobile {
+    display: none;
+    @media(max-width: 1200px) {
+        display: block!important;
+    } 
+}
 .margin-right-small {
     margin-right: 10px;
 }
 .stream-info {
-    margin-top: 55px;
+    margin-top: 42px;
     padding-right: 20px;
+    margin-bottom: 50px;
 }
 
 .firstlabel {
     margin-top: 5px!important;
 }
 .cc-holder{
-    background-color: #f2f2f2;
+    background-color: #e8e8e8;
+    color: #555;
     padding: 9px;
     margin-top: 10px;
     border-radius: 2px;
@@ -227,6 +248,11 @@ small.warn {
     font-size: 13px;
 }
 
+.btn-primary {
+    padding-top: 50px;
+    background-color: #4f1fe1;
+    border: none;
+}
 
 html, body {
     font-family: 'Open Sans', sans-serif;
@@ -246,29 +272,36 @@ td {
 }
 .form-widget {
     &.load {
+   
+        
         .load-info {
             text-align: center;
             margin-top: 20px;
             font-weight: 600;
+            color: #120e18;
            
         }
          p {
                 font-size: 14px;
+                color: #120e18;
             }
     }
     margin-top: 50px;
-    width: 360px;
+    width: 370px;
     height: 510px;
     background-color: white;
-    -webkit-box-shadow: 9px 18px 31px -3px rgba(199,191,199,0.5);
-    -moz-box-shadow: 9px 18px 31px -3px rgba(199,191,199,0.5);
-    box-shadow: 9px 18px 31px -3px rgba(199,191,199,0.5);
-    padding: 20px;
+    border-radius: 5px;
+    // -webkit-box-shadow: 9px 18px 31px -3px rgba(199,191,199,0.5);
+    // -moz-box-shadow: 9px 18px 31px -3px rgba(199,191,199,0.5);
+    // box-shadow: 9px 18px 31px -3px rgba(199,191,199,0.5);
+    padding: 24px;
+    padding-top: 20px;
 
 
     label {
         margin-top: 27px;
         font-weight: 500;
+        color: #120e18;
     }
     input {
         height: 40px;
@@ -278,7 +311,7 @@ td {
     .btn {
         margin-top: 20px;
         width: 100%;
-        padding-top: 10px;
+        padding-top: 12px;
         height: 50px;
         &.dis {
             background-color: #8e8f8e;
@@ -292,7 +325,9 @@ td {
     background-color: yellow;
     height: 510px;
     border-radius: 6px;
-    background: linear-gradient(155.91deg, #27263c 3.98%, #591c5b 99.12%);
+    background: #8E2DE2;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #4A00E0, #8E2DE2);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #4A00E0, #8E2DE2); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     position: relative;
 
@@ -344,7 +379,7 @@ td {
             text-align: center;
         }
         span {
-            color: #888b87;
+            color: #cfd0cf;
         }
     }
 
@@ -399,7 +434,21 @@ td {
 
 .align-t-left {
     text-align: left;
-    padding-left: 20px;
+    padding-left: 50px;
+    @media(max-width: 1200px) {
+    margin-right: 150px!important;
+    padding-left: 20px!important;
+    }
+    .first {
+        @media(max-width: 880px) {
+            margin-top: 0px!important;
+        }
+    }
+    h4 {
+        @media(max-width: 880px) {
+            margin-top: 30px;
+        }
+    }
 }
 
 .lds-ripple {

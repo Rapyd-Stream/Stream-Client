@@ -19,7 +19,9 @@ font-family: 'Open Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  color: white;
+  min-height: 100vh;
+  padding-top: 50px;
+  background-color: #1f152e;
 }
 </style>
